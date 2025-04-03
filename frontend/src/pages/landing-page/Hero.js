@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, } from "react";
+import { useNavigate } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { TypeAnimation } from 'react-type-animation';
 
 const Hero = () => {
   const [scrolled, setScrolled] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     AOS.init({
       duration: 1200,
@@ -49,10 +50,13 @@ const Hero = () => {
             </p>
             
             <div className="cta-container">
-              <a href="#about" className="cta-primary" data-aos="fade-up" data-aos-delay="400">
+            <button 
+            onClick={() => navigate('/register')} 
+            className="btn-primary"
+          >
                 Commencer gratuitement
                 <span className="arrow">→</span>
-              </a>
+              </button>
               <a href="#features" className="cta-secondary" data-aos="fade-up" data-aos-delay="450">
                 Voir les fonctionnalités
               </a>
@@ -84,9 +88,7 @@ const Hero = () => {
               <div className="floating-element element-1" data-aos="fade-down" data-aos-delay="600">
                 <span>👋</span> Nouveaux membres
               </div>
-              <div className="floating-element element-2" data-aos="fade-up" data-aos-delay="700">
-                <span>🚀</span> Projets lancés
-              </div>
+              
             </div>
           </div>
         </div>
@@ -253,13 +255,13 @@ const Hero = () => {
         .floating-element {
           position: absolute;
           background: white;
-          padding: 12px 16px;
+          padding: 5px 10px;
           border-radius: 12px;
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
           display: flex;
           align-items: center;
           gap: 8px;
-          font-weight: 600;
+          font-weight: 100;
           z-index: 3;
         }
 

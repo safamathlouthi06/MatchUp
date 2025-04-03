@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { BiChevronDown, BiMenu, BiX } from "react-icons/bi";
+import { useNavigate, Link } from 'react-router-dom';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const headerRef = useRef(null);
   const navRef = useRef(null);
+  const navigate = useNavigate();
 
   // Handle scroll effect
   useEffect(() => {
@@ -38,30 +40,23 @@ const Header = () => {
     setDropdownOpen(dropdownOpen === id ? null : id);
   };
 
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setMobileMenuOpen(false);
+    setDropdownOpen(null);
+  };
+
   const navItems = [
-    { id: 'home', label: 'Home', href: '#hero' },
-    { id: 'about', label: 'About', href: '#about' },
-    { id: 'features', label: 'Features', href: '#features' },
-    { id: 'services', label: 'Services', href: '#services' },
-    { id: 'pricing', label: 'Pricing', href: '#pricing' },
-    { 
-      id: 'dropdown', 
-      label: 'Resources', 
-      submenu: [
-        { id: 'resource1', label: 'Documentation', href: '#' },
-        { 
-          id: 'resource2', 
-          label: 'Learn', 
-          submenu: [
-            { id: 'learn1', label: 'Tutorials', href: '#' },
-            { id: 'learn2', label: 'Webinars', href: '#' },
-            { id: 'learn3', label: 'Case Studies', href: '#' }
-          ]
-        },
-        { id: 'resource3', label: 'Blog', href: '#' }
-      ]
-    },
-    { id: 'contact', label: 'Contact', href: '#contact' }
+    { id: 'home', label: 'Home', section: 'hero' },
+    { id: 'about', label: 'About', section: 'about' },
+    { id: 'features', label: 'Features', section: 'features' },
+    { id: 'services', label: 'Services', section: 'services' },
+    { id: 'pricing', label: 'Pricing', section: 'pricing' },
+    { id: 'testimonials', label: 'Testimonials', section: 'testimonials' },
+    { id: 'contact', label: 'Contact', section: 'contact' }
   ];
 
   const renderSubmenu = (items, level = 1) => {
@@ -81,9 +76,12 @@ const Header = () => {
                 {dropdownOpen === item.id && renderSubmenu(item.submenu, level + 1)}
               </>
             ) : (
-              <a href={item.href} onClick={() => setMobileMenuOpen(false)}>
+              <button 
+                onClick={() => scrollToSection(item.section)} 
+                className="nav-link-button"
+              >
                 {item.label}
-              </a>
+              </button>
             )}
           </li>
         ))}
@@ -94,11 +92,11 @@ const Header = () => {
   return (
     <header ref={headerRef} className="header">
       <div className="header-container container">
-        {/* Logo */}
-        <a href="/" className="logo">
+        {/* Logo - Using Link for proper navigation */}
+        <Link to="/" className="logo">
           <span className="logo-text">MatchUp</span>
           <span className="logo-dot">.</span>
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav ref={navRef} className={`navmenu ${mobileMenuOpen ? 'open' : ''}`}>
@@ -117,15 +115,12 @@ const Header = () => {
                     {dropdownOpen === item.id && renderSubmenu(item.submenu)}
                   </>
                 ) : (
-                  <a 
-                    href={item.href} 
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      setDropdownOpen(null);
-                    }}
+                  <button 
+                    onClick={() => scrollToSection(item.section)}
+                    className="nav-link-button"
                   >
                     {item.label}
-                  </a>
+                  </button>
                 )}
               </li>
             ))}
@@ -142,9 +137,12 @@ const Header = () => {
 
         {/* CTA Button */}
         <div className="header-actions">
-          <a href="#about" className="btn-primary">
+          <button 
+            onClick={() => navigate('/register')} 
+            className="btn-primary"
+          >
             Get Started
-          </a>
+          </button>
         </div>
 
         {/* Mobile Toggle Button */}
@@ -163,7 +161,7 @@ const Header = () => {
           top: 0;
           left: 0;
           right: 0;
-          z-index: 999;
+          z-index: 99;
           background: rgba(255, 255, 255, 0.95);
           backdrop-filter: blur(10px);
           box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
@@ -178,7 +176,7 @@ const Header = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          height: 80px;
+          height: 50px;
           padding: 0 20px;
         }
 
@@ -190,6 +188,10 @@ const Header = () => {
           text-decoration: none;
           color: #2c3e50;
           z-index: 1001;
+        }
+
+        .logo:hover {
+          color: #2c3e50;
         }
 
         .logo-dot {
@@ -214,8 +216,9 @@ const Header = () => {
           margin: 0 15px;
         }
 
-        .main-menu > li > a,
-        .menu-toggle {
+        .main-menu > li > button,
+        .menu-toggle,
+        .nav-link-button {
           display: flex;
           align-items: center;
           padding: 10px 15px;
@@ -229,14 +232,10 @@ const Header = () => {
           cursor: pointer;
         }
 
-        .main-menu > li > a:hover,
-        .menu-toggle:hover {
+        .main-menu > li > button:hover,
+        .menu-toggle:hover,
+        .nav-link-button:hover {
           color: #3a7bd5;
-        }
-
-        .main-menu > li > a.active {
-          color: #3a7bd5;
-          font-weight: 600;
         }
 
         .icon {
@@ -284,7 +283,7 @@ const Header = () => {
           align-items: center;
         }
 
-        .submenu li a,
+        .submenu li button,
         .submenu-toggle {
           padding: 8px 20px;
           font-size: 0.95rem;
@@ -292,9 +291,14 @@ const Header = () => {
           text-decoration: none;
           transition: all 0.2s ease;
           display: block;
+          width: 100%;
+          text-align: left;
+          background: none;
+          border: none;
+          cursor: pointer;
         }
 
-        .submenu li a:hover,
+        .submenu li button:hover,
         .submenu-toggle:hover {
           color: #3a7bd5;
           background: #f8fafc;
@@ -318,7 +322,8 @@ const Header = () => {
           color: white;
           border-radius: 8px;
           font-weight: 500;
-          text-decoration: none;
+          border: none;
+          cursor: pointer;
           transition: all 0.3s ease;
           box-shadow: 0 4px 15px rgba(58, 123, 213, 0.3);
         }
@@ -381,8 +386,9 @@ const Header = () => {
             margin: 10px 0;
           }
 
-          .main-menu > li > a,
-          .menu-toggle {
+          .main-menu > li > button,
+          .menu-toggle,
+          .nav-link-button {
             padding: 12px 0;
             font-size: 1.1rem;
           }
@@ -408,7 +414,7 @@ const Header = () => {
             padding: 8px 0;
           }
 
-          .submenu li a {
+          .submenu li button {
             padding: 8px 0;
           }
 

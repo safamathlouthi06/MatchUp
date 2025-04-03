@@ -1,10 +1,22 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const matchs = new Map(); // { userId: [matchedUserIds] }
 
-const matchSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  jobId: { type: mongoose.Schema.Types.ObjectId, ref: "Job", required: true },
-  status: { type: String, enum: ["liked", "matched", "rejected"], default: "liked" },
-  createdAt: { type: Date, default: Date.now }
+app.post('/like/:userId/:targetId', (req, res) => {
+  if (checkForMatch(req.params.userId, req.params.targetId)) {
+    // Crée un match !
+    notifyUsers(req.params.userId, req.params.targetId);
+    res.json({ matched: true });
+  } else {
+    res.json({ matched: false });
+  }
 });
 
-module.exports = mongoose.model("Match", matchSchema);
+function checkForMatch(userId, targetId) {
+  const targetLikes = matchs.get(targetId) || [];
+  if (targetLikes.includes(userId)) {
+    addMatch(userId, targetId);
+    return true;
+  }
+  addLike(userId, targetId);
+  return false;
+}
