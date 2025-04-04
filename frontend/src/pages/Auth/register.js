@@ -27,7 +27,7 @@ export default function RegisterPage() {
     setErrorMessage('');
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_SITE_URL}/auth/register`, {
+      const response = await fetch('http://localhost:5000/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 required
                 style={styles.input}
-                placeholder="John Doe"
+                placeholder="Full Name"
               />
             </div>
           </div>

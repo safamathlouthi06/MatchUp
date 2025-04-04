@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';  // Pour faire des requêtes HTTP
 import './UserProfile.css';
 
 const UserAvatar = ({ photoUrl, name, onPhotoChange }) => (
   <div className="avatar-container">
     <img 
       src={photoUrl} 
-      alt={`Photo de ${name}`}
-      onError={(e) => { e.target.src = '/default-avatar.png' }}
+      alt={`Photo de ${name}`} 
+      onError={(e) => { e.target.src = '/default-avatar.png' }} 
     />
     {onPhotoChange && (
       <input 
         type="file" 
         accept="image/*" 
-        onChange={onPhotoChange}
-        style={{ display: 'none' }}
-        id="avatar-upload"
+        onChange={onPhotoChange} 
+        style={{ display: 'none' }} 
+        id="avatar-upload" 
       />
     )}
   </div>
@@ -27,12 +28,12 @@ const UserResume = ({ cvUrl, onCvChange }) => (
       Télécharger le CV
     </a>
     {onCvChange && (
-      <input
-        type="file"
-        accept=".pdf,.doc,.docx"
-        onChange={onCvChange}
-        style={{ display: 'none' }}
-        id="cv-upload"
+      <input 
+        type="file" 
+        accept=".pdf,.doc,.docx" 
+        onChange={onCvChange} 
+        style={{ display: 'none' }} 
+        id="cv-upload" 
       />
     )}
   </div>
@@ -60,27 +61,18 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [tempData, setTempData] = useState({});
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const mockUser = {
-          name: "Jean Dupont",
-          email: "jean.dupont@example.com",
-          phone: "+33 6 12 34 56 78",
-          address: "Paris, France",
-          photo: "/profile-avatar.jpg",
-          cv: "/user-cv.pdf"
-        };
-        
-        setTimeout(() => {
-          setUserData(mockUser);
-          setTempData({ ...mockUser });
-          setLoading(false);
-        }, 1000);
-
+        const response = await axios.get('/api/user/profile'); // Utilisez l'API pour récupérer les données de l'utilisateur
+        setUserData(response.data);
+        setTempData(response.data);
+        setLoading(false);
       } catch (error) {
         console.error("Erreur de chargement :", error);
+        setError('Erreur lors du chargement des données');
         setLoading(false);
       }
     };
@@ -109,10 +101,17 @@ const UserProfile = () => {
     }
   };
 
-  const handleSave = () => {
-    setUserData(tempData);
-    setIsEditing(false);
-    // Ici vous ajouteriez l'appel API pour sauvegarder
+  const handleSave = async () => {
+    try {
+      const response = await axios.put('/api/user/profile', tempData); // Envoyer les données mises à jour
+      setUserData(tempData);
+      setIsEditing(false);
+      setError('');
+      alert('Profil mis à jour avec succès !');
+    } catch (error) {
+      console.error('Erreur de sauvegarde :', error);
+      setError('Erreur lors de la sauvegarde des données');
+    }
   };
 
   const handleCancel = () => {
@@ -121,7 +120,7 @@ const UserProfile = () => {
   };
 
   if (loading) return <div className="loading">Chargement du profil...</div>;
-  if (!userData) return <div className="error">Erreur de chargement des données</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
     <div className="user-profile-container">

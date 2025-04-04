@@ -1,49 +1,21 @@
-const express = require("express");
-const Match = require("../models/matchs");
+const express = require('express');
 const router = express.Router();
+const { checkForMatch, notifyUsers } = require('../models/matchs');
 
-// 🔹 Ajouter un match
-router.post("/add", async (req, res) => {
-  try {
-    const newMatch = new Match(req.body);
-    await newMatch.save();
-    res.status(201).json(newMatch);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+router.post('/like/:userId/:targetId', (req, res) => {
+  const { userId, targetId } = req.params;
 
-// 🔹 Récupérer tous les matchs
-router.get("/findall", async (req, res) => {
-  try {
-    const matches = await Match.find().populate("userId jobId");
-    res.json(matches);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (userId === targetId) {
+    return res.status(400).json({ error: "Tu ne peux pas te liker toi-même" });
   }
-});
 
-// 🔹 Récupérer un match par son ID
-router.get("/find/:id", async (req, res) => {
-  try {
-    const match = await Match.findById(req.params.id).populate("userId jobId");
-    if (!match) {
-      return res.status(404).json({ message: "Match non trouvé" });
-    }
-    res.json(match);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+  const matched = checkForMatch(userId, targetId);
 
-// 🔹 Supprimer un match
-router.delete("/delete/:id", async (req, res) => {
-  try {
-    await Match.findByIdAndDelete(req.params.id);
-    res.json({ message: "Match supprimé" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (matched) {
+    notifyUsers(userId, targetId);
   }
+
+  res.json({ matched });
 });
 
 module.exports = router;
